@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Reception – Token Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#14231c;--mute:#5b6a62;--line:#dde3df;--green:#0b6b3a;--red:#b3202a;--amber:#9a5b0a;--blue:#1d4f91;--okbg:#e2f0e6;--ambbg:#fbefd9;--bluebg:#e3ecf7}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1512;--card:#17201b;--ink:#eef3f0;--mute:#9baba2;--line:#2a3730;--okbg:#17301f;--ambbg:#3a2c12;--bluebg:#172a40}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 "Bricolage Grotesque",system-ui,sans-serif;padding:16px}
+.wrap{max-width:980px;margin:0 auto;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px}
+header{display:grid;grid-template-columns:110px 1fr 110px;align-items:center;gap:12px;text-align:center;padding:20px}
+header img{max-width:100%;max-height:78px;justify-self:center;background:#fff;border-radius:8px;padding:2px}
+header h1{font-size:18px;margin:6px 0;line-height:1.3}
+.tag{font-size:11px;letter-spacing:.2em;color:var(--mute)}
+.bar3{display:flex;gap:6px;justify-content:center;margin:8px 0}.bar3 i{width:32px;height:3px;background:#d4202c}.bar3 i:nth-child(2){background:#111}.bar3 i:nth-child(3){background:#0b8a4a}
+.note{font-size:12px;color:var(--mute)}
+h2{font-size:24px;margin:6px 0 2px}h3{font-size:15px;margin:6px 0}.sub{color:var(--mute);margin:0;max-width:640px}
+.bartop{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;justify-content:space-between}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);overflow:hidden}
+.stats div{padding:16px 18px;border-inline-end:1px solid var(--line)}.stats div:last-child{border:0}
+.stats b{font-size:30px;display:block;line-height:1.1}.stats span{color:var(--mute);font-size:12px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:8px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block}
+.btn.pri{background:var(--green);color:#fff;border-color:var(--green)}.btn.pri:disabled{opacity:.45;cursor:default}
+.tools{display:flex;gap:8px;flex-wrap:wrap}
+input{border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit;padding:9px 11px}
+.search{width:100%}
+.item{padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:12px 20px;align-items:center}
+.who{font-size:17px;font-weight:700}
+.ct{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:6px;font-size:13px}
+.ct a{color:var(--blue)}
+.cp{display:inline-flex;align-items:center;gap:6px}
+.cp button{border:1px solid var(--line);background:none;color:var(--mute);border-radius:6px;font:inherit;font-size:11px;padding:1px 7px;cursor:pointer}
+.cp button:hover{color:var(--ink);border-color:var(--ink)}
+.meta{font-size:12px;color:var(--mute);margin-top:6px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pill{font-weight:700;border-radius:99px;padding:2px 10px;font-size:12px}
+.p-w{background:var(--ambbg);color:var(--amber)}.p-i{background:var(--okbg);color:var(--green)}
+.issue{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.issue input{width:150px;font:700 20px ui-monospace,Consolas,monospace;text-transform:uppercase;text-align:center;letter-spacing:.06em}
+.sm{font-size:12px;min-height:16px;width:100%;text-align:end;color:var(--mute)}.sm.err{color:var(--red)}
+.del{background:none;border:0;color:var(--mute);cursor:pointer;font:inherit;font-size:12px;padding:6px}.del:hover{color:var(--red)}
+.empty,.err{padding:30px;text-align:center;color:var(--mute)}.err{color:var(--red)}
+[hidden]{display:none!important}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #3b82f6;outline-offset:2px}
+@media(max-width:760px){.item{grid-template-columns:1fr}.issue{justify-content:flex-start}.sm{text-align:start}header{grid-template-columns:64px 1fr 64px}header img{max-height:56px}}
+</style>
+</head>
+<body>
+<form id="lg" class="card" hidden style="max-width:340px;margin:10vh auto;padding:24px;display:grid;gap:12px"><b style="font-size:17px">Reception sign-in</b><input id="pw" type="password" placeholder="Password" autocomplete="current-password" required><button class="btn pri" type="submit">Sign in</button><span id="lerr" style="color:var(--red);font-size:13px"></span></form>
+
+<div class="wrap" id="app">
+  <header class="card">
+    <img src="logo-amer.png" alt="Amer" onerror="this.style.visibility='hidden'">
+    <div><div class="tag">TOKEN DESK</div><h1>True Link Government<br>Transaction Center LLC</h1><div class="bar3"><i></i><i></i><i></i></div><div class="note">Reception dashboard</div></div>
+    <img src="logo-truelink.png" alt="True Link" onerror="this.style.visibility='hidden'">
+  </header>
+
+  <div class="bartop">
+    <div><h2>Customer queue</h2><p class="sub">Customers who scan the QR code appear here, oldest first. Enter their details in the ERP, then type the ERP token number and press Send token. It appears on the customer's phone at once.</p></div>
+    <div class="tools"><a class="btn" href="qr.html" target="_blank" rel="noopener">Show QR code</a><button class="btn" id="snd" type="button" aria-pressed="true">Sound: on</button></div>
+  </div>
+
+  <div class="card stats" id="stats"></div>
+  <input class="search" id="q" placeholder="Search name, mobile or email" aria-label="Search">
+
+  <h3>Waiting for a token</h3>
+  <div id="waiting" style="display:grid;gap:10px"></div>
+  <h3 style="margin-top:10px">Token sent (last 24 hours)</h3>
+  <div id="issued" style="display:grid;gap:10px"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s);
+let items=[],token="",drafts={},sig="",first=true,seen=new Set(),sound=true;
+try{token=sessionStorage.getItem("rk")||"";sound=localStorage.getItem("rsound")!=="off"}catch(e){}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const ago=d=>{const m=Math.max(0,Math.floor((Date.now()-new Date(d))/60000));return m<1?"just now":m<60?m+" min ago":Math.floor(m/60)+" h "+(m%60)+" min ago"};
+const hm=d=>new Date(d).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+
+async function api(p,body){
+  const h={"Content-Type":"application/json",Authorization:"Bearer "+token};
+  const r=await fetch("/api/"+p,body?{method:"POST",headers:h,body:JSON.stringify(body)}:{headers:h,cache:"no-store"});
+  if(r.status===401&&p!=="reception/login"){$("#app").hidden=true;$("#lg").hidden=false;throw new Error("auth")}
+  if(!r.ok){const e=new Error(r.status);try{e.code=(await r.json()).error}catch(x){}throw e}
+  return r.json();
+}
+function beep(){
+  if(!sound)return;
+  try{const a=new (window.AudioContext||window.webkitAudioContext)(),o=a.createOscillator(),g=a.createGain();
+    o.connect(g);g.connect(a.destination);o.frequency.value=880;g.gain.setValueAtTime(.18,a.currentTime);g.gain.exponentialRampToValueAtTime(.001,a.currentTime+.5);o.start();o.stop(a.currentTime+.5)}catch(e){}
+}
+function sndLabel(){const b=$("#snd");b.textContent="Sound: "+(sound?"on":"off");b.setAttribute("aria-pressed",sound)}
+$("#snd").onclick=()=>{sound=!sound;try{localStorage.setItem("rsound",sound?"on":"off")}catch(e){}sndLabel();if(sound)beep()};
+
+async function load(){
+  try{
+    items=(await api("reception/list")).items;$("#lg").hidden=true;$("#app").hidden=false;
+    const w=items.filter(i=>i.status==="waiting");
+    if(!first&&w.some(i=>!seen.has(i.id)))beep();
+    w.forEach(i=>seen.add(i.id));first=false;
+    const s=JSON.stringify(items.map(i=>[i.id,i.status,i.token]));
+    if(s!==sig){sig=s;render()}else stats();
+  }catch(e){if(e.message==="auth")return;$("#waiting").innerHTML='<div class="card err">Could not load the queue. Check that the site was deployed with the server function.</div>'}
+}
+function stats(){
+  const w=items.filter(i=>i.status==="waiting"),d=items.length-w.length;
+  const old=w.length?ago(w[w.length-1].createdAt):"–";
+  $("#stats").innerHTML=[[w.length,"Waiting now"],[d,"Tokens sent"],[old.replace(" ago",""),"Longest wait"]].map(([a,b])=>`<div><b>${esc(a)}</b><span>${b}</span></div>`).join("");
+  document.querySelectorAll(".ago").forEach(e=>e.textContent=ago(e.dataset.t));
+}
+const copy=(v,label)=>`<span class="cp">${label}<button type="button" data-copy="${esc(v)}">Copy</button></span>`;
+function card(i){
+  const w=i.status==="waiting",v=drafts[i.id]!==undefined?drafts[i.id]:(i.token||"");
+  return `<div class="card item" data-id="${i.id}">
+    <div><div class="who" dir="auto">${esc(i.name)} ${copy(i.name,"")}</div>
+      <div class="ct"><span class="cp"><a href="tel:${esc(i.phone)}" dir="ltr">${esc(i.phone)}</a><button type="button" data-copy="${esc(i.phone)}">Copy</button></span>
+      <span class="cp"><a href="mailto:${esc(i.email)}" dir="ltr">${esc(i.email)}</a><button type="button" data-copy="${esc(i.email)}">Copy</button></span></div>
+      <div class="meta"><span class="pill ${w?"p-w":"p-i"}">${w?"Waiting":"Token sent"}</span>${w?"":`<span>Token <b dir="ltr">${esc(i.token)}</b> sent ${hm(i.issuedAt)}</span>`}<span>Arrived ${hm(i.createdAt)}</span><span class="ago" data-t="${i.createdAt}">${ago(i.createdAt)}</span>${i.language==="ar"?"<span>Arabic</span>":""}</div></div>
+    <div class="issue"><input dir="ltr" maxlength="20" placeholder="ERP token" aria-label="Token number" value="${esc(v)}"><button class="btn pri send" type="button" ${v.trim()?"":"disabled"}>${w?"Send token":"Update token"}</button><button class="del" type="button">Remove</button><span class="sm" role="status"></span></div></div>`;
+}
+function render(){
+  const q=$("#q").value.trim().toLowerCase();
+  const m=i=>!q||(i.name+" "+i.phone+" "+i.email+" "+i.token).toLowerCase().includes(q);
+  const w=items.filter(i=>i.status==="waiting"&&m(i)).sort((a,b)=>a.createdAt.localeCompare(b.createdAt));
+  const d=items.filter(i=>i.status==="issued"&&m(i)).sort((a,b)=>b.issuedAt.localeCompare(a.issuedAt)).slice(0,60);
+  $("#waiting").innerHTML=w.length?w.map(card).join(""):'<div class="card empty">No customers waiting.</div>';
+  $("#issued").innerHTML=d.length?d.map(card).join(""):'<div class="card empty">Nothing sent yet.</div>';
+  stats();
+}
+async function send(box){
+  const id=box.dataset.id,inp=box.querySelector("input"),btn=box.querySelector(".send"),sm=box.querySelector(".sm");
+  const t=inp.value.trim();if(!t)return;
+  btn.disabled=true;sm.className="sm";sm.textContent="Sending…";
+  try{
+    const r=await api("reception/issue",{id,token:t});
+    items=items.map(x=>x.id===id?r.item:x);delete drafts[id];sig=JSON.stringify(items.map(i=>[i.id,i.status,i.token]));render();
+  }catch(e){
+    if(e.message==="auth")return;
+    sm.className="sm err";btn.disabled=false;
+    sm.textContent=e.code==="badtoken"?"Use letters, numbers and dashes only.":e.code==="notfound"?"Customer record no longer exists.":"Could not send. Try again.";
+  }
+}
+document.addEventListener("click",async e=>{
+  const c=e.target.closest("[data-copy]");
+  if(c){const v=c.dataset.copy;try{await navigator.clipboard.writeText(v)}catch(x){const t=document.createElement("textarea");t.value=v;document.body.appendChild(t);t.select();try{document.execCommand("copy")}catch(y){}t.remove()}
+    const o=c.textContent;c.textContent="Copied";setTimeout(()=>c.textContent=o,1200);return}
+  const box=e.target.closest(".item");if(!box)return;
+  if(e.target.closest(".send"))return send(box);
+  if(e.target.closest(".del")&&confirm("Remove this customer from the queue? Their phone will ask them to submit again.")){
+    try{await api("reception/delete",{id:box.dataset.id});items=items.filter(x=>x.id!==box.dataset.id);sig="";render()}catch(x){if(x.message!=="auth")alert("Could not remove. Try again.")}
+  }
+});
+document.addEventListener("input",e=>{
+  if(e.target.matches(".issue input")){
+    const box=e.target.closest(".item");drafts[box.dataset.id]=e.target.value;
+    box.querySelector(".send").disabled=!e.target.value.trim();
+  }
+  if(e.target.id==="q")render();
+});
+document.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.matches(".issue input")){e.preventDefault();send(e.target.closest(".item"))}});
+$("#lg").onsubmit=async e=>{e.preventDefault();$("#lerr").textContent="";try{const r=await api("reception/login",{password:$("#pw").value});token=r.token;try{sessionStorage.setItem("rk",token)}catch(x){}first=true;load()}catch(x){$("#lerr").textContent="Wrong password."}};
+sndLabel();load();
+setInterval(load,5000);
+setInterval(()=>document.querySelectorAll(".ago").forEach(e=>e.textContent=ago(e.dataset.t)),30000);
+</script>
+</body>
+</html>

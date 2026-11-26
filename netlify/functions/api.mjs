@@ -1,0 +1,93 @@
+import { getStore } from "@netlify/blobs";
+import crypto from "node:crypto";
+
+// Reception dashboard password. Set RECEPTION_PASSWORD in Netlify (Site configuration > Environment variables).
+// If it is not set, the dashboard is open to anyone who knows the link, so always set it.
+const PW = process.env.RECEPTION_PASSWORD || "";
+const TOKEN_HOURS = 4;            // how long a customer can re-open their token
+const QUEUE_KEEP = 24 * 3600e3;   // queue records are deleted after 24 hours
+
+const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+const sign = (e) => crypto.createHmac("sha256", PW).update(String(e)).digest("hex");
+const eq = (a, b) => { a = Buffer.from(a); b = Buffer.from(b); return a.length === b.length && crypto.timingSafeEqual(a, b); };
+const authed = (req) => {
+  if (!PW) return true;
+  const [e, s] = (req.headers.get("authorization") || "").replace("Bearer ", "").split(".");
+  return !!(e && s && +e > Date.now() && eq(s, sign(e)));
+};
+const clip = (v, n) => String(v || "").trim().slice(0, n);
+const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+const AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const rid = () => Array.from(crypto.randomBytes(16), (b) => AL[b % 32]).join("");
+
+export default async (req) => {
+  const url = new URL(req.url);
+  const path = url.pathname.replace(/^\/api\//, "");
+  const POST = req.method === "POST";
+  const body = POST ? await req.json().catch(() => ({})) : {};
+  const queue = getStore({ name: "queue", consistency: "strong" });
+
+  // ---- Customer side (opened from the QR code) ----
+  if (path === "queue/join" && POST) {
+    if (body.bot) return J({ ok: true }); // honeypot
+    const name = clip(body.name, 80);
+    const phone = clip(body.phone, 30).replace(/[^\d+\-() ]/g, "");
+    const email = clip(body.email, 120);
+    if (!name || phone.replace(/\D/g, "").length < 7 || !EMAIL.test(email)) return J({ error: "invalid" }, 400);
+    const id = rid(); // unguessable: it is the customer's only key to their token
+    await queue.setJSON(id, {
+      id, name, phone, email, language: body.language === "ar" ? "ar" : "en",
+      createdAt: new Date().toISOString(), status: "waiting", token: "", issuedAt: null,
+    });
+    return J({ id });
+  }
+
+  if (path === "queue/status") {
+    const id = (url.searchParams.get("id") || "").trim().toUpperCase();
+    const it = /^[A-Z0-9]{16}$/.test(id) ? await queue.get(id, { type: "json" }) : null;
+    if (!it) return J({ error: "notfound" }, 404);
+    const t = it.issuedAt ? new Date(it.issuedAt).getTime() : 0;
+    return J({
+      status: it.status, token: it.token, name: it.name, issuedAt: it.issuedAt,
+      visibleUntil: t ? new Date(t + TOKEN_HOURS * 3600e3).toISOString() : null,
+      now: new Date().toISOString(),
+    });
+  }
+
+  // ---- Reception side ----
+  if (path === "reception/login" && POST) {
+    if (!PW) return J({ token: "open" });
+    if (eq(String(body.password || ""), PW)) {
+      const e = Date.now() + 12 * 3600e3;
+      return J({ token: e + "." + sign(e) });
+    }
+    return J({ error: "bad" }, 401);
+  }
+  if (path.startsWith("reception/")) {
+    if (!authed(req)) return J({ error: "auth" }, 401);
+    if (path === "reception/list") {
+      const { blobs } = await queue.list();
+      const all = (await Promise.all(blobs.map((b) => queue.get(b.key, { type: "json" })))).filter(Boolean);
+      const old = all.filter((i) => Date.now() - new Date(i.createdAt).getTime() > QUEUE_KEEP);
+      await Promise.all(old.map((i) => queue.delete(i.id)));
+      const items = all.filter((i) => !old.includes(i)).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+      return J({ items });
+    }
+    if (path === "reception/issue" && POST) {
+      const it = await queue.get(String(body.id), { type: "json" });
+      if (!it) return J({ error: "notfound" }, 404);
+      const token = clip(body.token, 20).toUpperCase();
+      if (!/^[A-Z0-9][A-Z0-9\- ]{0,19}$/.test(token)) return J({ error: "badtoken" }, 400);
+      it.token = token; it.status = "issued"; it.issuedAt = new Date().toISOString();
+      await queue.setJSON(it.id, it);
+      return J({ item: it });
+    }
+    if (path === "reception/delete" && POST) {
+      await queue.delete(String(body.id));
+      return J({ ok: true });
+    }
+  }
+  return J({ error: "not found" }, 404);
+};
+
+export const config = { path: "/api/*" };

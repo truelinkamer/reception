@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Get your token – True Link</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;700;800&family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3f5f4;--card:#fff;--ink:#14231c;--mute:#5b6a62;--line:#dde3df;--green:#0b6b3a;--red:#b3202a;--okbg:#e2f0e6;--redbg:#fbe8e8}
+@media (prefers-color-scheme:dark){:root{--bg:#0f1512;--card:#17201b;--ink:#eef3f0;--mute:#9baba2;--line:#2a3730;--okbg:#17301f;--redbg:#3a1b1d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Bricolage Grotesque",system-ui,sans-serif;padding:16px}
+html[dir=rtl] body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
+body.lock{overflow:hidden}
+.wrap{max-width:560px;margin:0 auto;display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:24px 28px}
+header{display:grid;grid-template-columns:90px 1fr 90px;align-items:center;gap:12px;text-align:center}
+header img{max-width:100%;max-height:70px;justify-self:center;background:#fff;border-radius:8px;padding:2px}
+header h1{font-size:17px;margin:6px 0;line-height:1.3}
+.tag{font-size:11px;letter-spacing:.2em;color:var(--mute)}
+.bar{display:flex;gap:6px;justify-content:center;margin:8px 0}.bar i{width:32px;height:3px;background:#d4202c}.bar i:nth-child(2){background:#111}.bar i:nth-child(3){background:#0b8a4a}
+.note{font-size:12px;color:var(--mute)}
+.top{display:flex;justify-content:flex-end}
+.lang{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--card)}
+.lang button{border:0;background:none;color:var(--ink);padding:5px 14px;font:inherit;font-size:12px;cursor:pointer}
+.lang button[aria-pressed=true]{background:var(--ink);color:var(--card);font-weight:600}
+h2{margin:0 0 4px;font-size:22px}.sub{color:var(--mute);margin:0 0 20px}
+label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+.in{width:100%;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:16px;padding:13px 14px}
+.fld{margin-bottom:16px}
+.in:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #3b82f6;outline-offset:2px}
+.send{background:var(--green);color:#fff;border:0;border-radius:10px;padding:14px 26px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;text-decoration:none;display:inline-block;text-align:center}
+.send.full{width:100%}.send[disabled]{opacity:.6;cursor:wait}
+.send.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.msg{margin:0 0 14px;font-size:13px;font-weight:600;color:var(--red);min-height:1em}
+.hp{position:absolute;left:-9999px}
+.notice{background:var(--redbg);color:var(--red);border-radius:10px;padding:12px 14px;font-weight:600;font-size:14px;margin-bottom:18px}
+.priv{font-size:12px;color:var(--mute);margin:14px 0 0;text-align:center}
+.center{text-align:center}
+.spin{width:54px;height:54px;border-radius:50%;border:5px solid var(--line);border-top-color:var(--green);margin:6px auto 18px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.tsmall{font:800 clamp(48px,16vw,84px)/1.1 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.04em;color:var(--green);background:var(--okbg);border-radius:16px;padding:16px 10px;margin:14px 0;white-space:nowrap;overflow:hidden}
+.btns{display:grid;gap:10px;margin-top:16px}
+/* ---- pop-ups ---- */
+.ov{position:fixed;inset:0;background:rgba(6,18,12,.78);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;z-index:50}
+.ov[hidden]{display:none}
+.dlg{background:var(--card);color:var(--ink);width:100%;max-width:560px;border-radius:24px;overflow:hidden;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.45);animation:pop .35s cubic-bezier(.2,.9,.3,1.2);margin:auto}
+@keyframes pop{from{transform:scale(.92) translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.stripe{display:flex;height:8px}.stripe i{flex:1;background:#d4202c}.stripe i:nth-child(2){background:#111}.stripe i:nth-child(3){background:#0b8a4a}
+.dbody{padding:28px 26px 30px}
+.dbody img{max-height:60px;background:#fff;border-radius:8px;padding:2px;margin-bottom:6px}
+.co{font-size:12px;color:var(--mute);margin-bottom:18px}
+.lbl{font-size:13px;letter-spacing:.28em;font-weight:700;color:var(--mute)}
+.big{font:800 clamp(72px,24vw,168px)/1.05 "Bricolage Grotesque",system-ui,sans-serif;letter-spacing:.04em;color:var(--green);background:var(--okbg);border:2px solid var(--green);border-radius:22px;padding:18px 8px;margin:12px 0 18px;white-space:nowrap;overflow:hidden}
+.hello{font-size:20px;font-weight:700;margin:0 0 4px}
+.dbody p{margin:0 0 6px}.dbody .mute{color:var(--mute)}
+.exit{margin-top:20px;min-width:200px}
+.rv h2{font-size:24px;margin:8px 0 6px}.rv .star{font-size:44px;line-height:1}
+@media (prefers-reduced-motion:reduce){.dlg,.spin{animation:none}}
+@media(max-width:560px){header{grid-template-columns:60px 1fr 60px}header img{max-height:50px}.card{padding:20px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="card">
+    <img src="logo-amer.png" alt="Amer" onerror="this.style.visibility='hidden'">
+    <div><div class="tag" data-i="tag"></div><h1>True Link Government<br>Transaction Center LLC</h1><div class="bar"><i></i><i></i><i></i></div></div>
+    <img src="logo-truelink.png" alt="True Link" onerror="this.style.visibility='hidden'">
+  </header>
+  <div class="top"><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="ar" aria-pressed="false">العربية</button></div></div>
+
+  <!-- 1. Details form -->
+  <main class="card" id="sForm">
+    <div class="notice" id="notice" role="status" hidden></div>
+    <h2 data-i="title"></h2><p class="sub" data-i="intro"></p>
+    <form id="f" novalidate>
+      <p class="hp"><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <div class="fld"><label class="l" for="name" data-i="name"></label><input class="in" id="name" name="name" maxlength="80" autocomplete="name" required></div>
+      <div class="fld"><label class="l" for="phone" data-i="phone"></label><input class="in" id="phone" name="phone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel" dir="ltr" required></div>
+      <div class="fld"><label class="l" for="email" data-i="email"></label><input class="in" id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" required></div>
+      <p class="msg" id="err" role="alert"></p>
+      <button class="send full" type="submit" id="btn" data-i="send"></button>
+      <p class="priv" data-i="priv"></p>
+    </form>
+  </main>
+
+  <!-- 2. Waiting for reception -->
+  <section class="card center" id="sWait" hidden>
+    <div class="spin" aria-hidden="true"></div>
+    <h2 id="waitT"></h2><p class="sub" style="margin:0 auto" data-i="waitD"></p>
+    <p class="note" style="margin-top:14px" data-i="waitS"></p>
+  </section>
+
+  <!-- 3. Token ready (stays for 4 hours) -->
+  <section class="card center" id="sTicket" hidden>
+    <div class="lbl" data-i="ready"></div>
+    <div class="tsmall" id="tkSmall" dir="ltr"></div>
+    <p class="note" id="tUntil"></p>
+    <div class="btns">
+      <button class="send" type="button" id="showFull" data-i="showFull"></button>
+      <a class="send ghost" id="fbLink" href="https://truelink-review.netlify.app/customer" data-i="fbBtn"></a>
+    </div>
+  </section>
+</div>
+
+<!-- Big token pop-up -->
+<div class="ov" id="mTk" hidden>
+  <div class="dlg" role="dialog" aria-modal="true" aria-labelledby="mTkL">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="dbody">
+      <img src="logo-truelink.png" alt="True Link" onerror="this.style.display='none'">
+      <div class="co">True Link Government Transaction Center LLC</div>
+      <div class="lbl" id="mTkL" data-i="yourToken"></div>
+      <div class="big" id="mTok" dir="ltr" aria-live="polite"></div>
+      <p class="hello" id="mHello"></p>
+      <p class="mute" data-i="pleaseWait"></p>
+      <p class="mute" id="mUntil" style="font-size:12px"></p>
+      <button class="send exit" type="button" id="mExit" data-i="exit"></button>
+    </div>
+  </div>
+</div>
+
+<!-- Review pop-up (after exit) -->
+<div class="ov" id="mRv" hidden>
+  <div class="dlg rv" role="dialog" aria-modal="true" aria-labelledby="rvT">
+    <div class="stripe"><i></i><i></i><i></i></div>
+    <div class="dbody">
+      <div class="star" aria-hidden="true">★</div>
+      <h2 id="rvT" data-i="revT"></h2>
+      <p class="mute" data-i="revD"></p>
+      <div class="btns" style="margin-top:20px">
+        <a class="send" id="rvGo" href="https://truelink-review.netlify.app/customer" data-i="revBtn"></a>
+        <button class="send ghost" type="button" id="rvLater" data-i="later"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const REVIEW="https://truelink-review.netlify.app/customer",KEY="tlq",SEEN="tlq_seen";
+const T={
+en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your details. Reception will send your token number to this screen.",name:"Full name",phone:"Mobile number",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",invalid:"Please check your name, mobile number and email address.",waitT:"Thank you, {n}",waitD:"Reception is preparing your token. Keep this page open. It will appear here automatically.",waitS:"Waiting for reception…",ready:"YOUR TOKEN IS READY",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"Your token has expired. If you need a new one, submit your details again.",gone:"We could not find your request. Please submit your details again."},
+ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل بياناتك وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",name:"الاسم الكامل",phone:"رقم الجوال",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",invalid:"يرجى التحقق من الاسم ورقم الجوال والبريد الإلكتروني.",waitT:"شكرًا لك {n}",waitD:"يقوم الاستقبال بتجهيز رقم دورك. أبقِ هذه الصفحة مفتوحة وسيظهر الرقم هنا تلقائيًا.",waitS:"بانتظار الاستقبال…",ready:"رقم دورك جاهز",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم الدور. إذا احتجت رقمًا جديدًا فأرسل بياناتك مرة أخرى.",gone:"لم نعثر على طلبك. يرجى إرسال بياناتك مرة أخرى."}};
+const $=s=>document.querySelector(s),f=$("#f");
+const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
+const set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const del=k=>{try{localStorage.removeItem(k)}catch(e){}};
+let lang="en",tk=null,info=null,off=0,timer=null,noticeKey="";
+const L=k=>T[lang][k];
+const left=()=>Date.parse(info.visibleUntil)-(Date.now()+off);
+const clock=iso=>new Date(iso).toLocaleTimeString(lang==="ar"?"ar-AE":"en-GB",{hour:"2-digit",minute:"2-digit"});
+
+function paint(){
+  document.querySelectorAll("[data-i]").forEach(e=>{const v=L(e.dataset.i);if(v)e.textContent=v});
+  const issued=tk&&info&&info.status==="issued",st=!tk?"form":issued?"ticket":"wait";
+  $("#sForm").hidden=st!=="form";$("#sWait").hidden=st!=="wait";$("#sTicket").hidden=st!=="ticket";
+  const nm=(info&&info.name)||(tk&&tk.name)||"";
+  $("#waitT").textContent=L("waitT").replace("{n}",nm);
+  $("#notice").hidden=!noticeKey;$("#notice").textContent=noticeKey?L(noticeKey):"";
+  if(issued){
+    const u=L("until").replace("{t}",clock(info.visibleUntil));
+    $("#tkSmall").textContent=info.token;$("#mTok").textContent=info.token;
+    $("#mHello").textContent=L("hello").replace("{n}",nm);
+    $("#tUntil").textContent=u;$("#mUntil").textContent=u;
+    fitAll();
+  }
+}
+function setLang(l){
+  lang=l;document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
+  document.querySelectorAll("[data-lang]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.lang===l));
+  set("lang",l);paint();
+}
+document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+
+/* shrink long token numbers so they always stay on one line */
+function fit(el,max){const w=el.clientWidth-28;if(w<=0)return;el.style.fontSize=Math.max(32,Math.min(max,w/(Math.max(el.textContent.length,1)*.7)))+"px"}
+function fitAll(){fit($("#mTok"),170);fit($("#tkSmall"),84)}
+addEventListener("resize",fitAll);
+/* pop-ups */
+function openTok(auto){
+  paint();$("#mTk").hidden=false;document.body.classList.add("lock");fitAll();$("#mExit").focus();
+  if(auto&&navigator.vibrate)try{navigator.vibrate([200,100,200])}catch(e){}
+}
+function exitTok(){$("#mTk").hidden=true;$("#mRv").hidden=false;$("#rvGo").focus()}
+function closeRv(){$("#mRv").hidden=true;document.body.classList.remove("lock")}
+$("#showFull").onclick=()=>openTok(false);
+$("#mExit").onclick=exitTok;$("#rvLater").onclick=closeRv;
+addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("#mTk").hidden)exitTok();else if(!$("#mRv").hidden)closeRv()});
+
+/* state */
+function drop(reason){
+  clearTimeout(timer);del(KEY);tk=null;info=null;noticeKey=reason;
+  $("#mTk").hidden=true;$("#mRv").hidden=true;document.body.classList.remove("lock");paint();
+}
+async function check(){
+  clearTimeout(timer);if(!tk)return;
+  try{
+    const r=await fetch("/api/queue/status?id="+encodeURIComponent(tk.id),{cache:"no-store"});
+    if(r.status===404)return drop("gone");
+    if(!r.ok)throw 0;
+    const d=await r.json();off=Date.parse(d.now)-Date.now();
+    const changed=d.status==="issued"&&(!info||info.token!==d.token||info.issuedAt!==d.issuedAt);
+    info=d;
+    if(d.status==="issued"&&left()<=0)return drop("expired");
+    paint();
+    const mark=tk.id+d.issuedAt+d.token;
+    if(changed&&d.status==="issued"&&get(SEEN)!==mark){set(SEEN,mark);openTok(true)}
+  }catch(e){}
+  timer=setTimeout(check,info&&info.status==="issued"?30000:4000);
+}
+setInterval(()=>{if(info&&info.status==="issued"&&left()<=0)drop("expired")},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&tk)check()});
+
+/* submit */
+f.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const err=$("#err"),btn=$("#btn");err.textContent="";
+  const o=Object.fromEntries(new FormData(f));o.bot=o["bot-field"];o.language=lang;
+  if(!o.name.trim()||o.phone.replace(/\D/g,"").length<7||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email.trim())){err.textContent=L("invalid");return}
+  btn.disabled=true;btn.textContent=L("sending");
+  try{
+    const r=await fetch("/api/queue/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)});
+    if(r.status===400){err.textContent=L("invalid");return}
+    if(!r.ok)throw 0;
+    const {id}=await r.json();if(!id)throw 0;
+    tk={id,name:o.name.trim()};set(KEY,JSON.stringify(tk));info=null;noticeKey="";f.reset();paint();check();
+  }catch(x){err.textContent=L("err")}
+  finally{btn.disabled=false;btn.textContent=L("send")}
+});
+
+/* start */
+$("#fbLink").href=REVIEW;$("#rvGo").href=REVIEW;
+try{const s=get("lang");lang=T[s]?s:"en"}catch(e){}
+try{tk=JSON.parse(get(KEY)||"null")}catch(e){tk=null}
+setLang(lang);if(tk)check();
+</script>
+</body>
+</html>
