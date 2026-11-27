@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 const PW = process.env.RECEPTION_PASSWORD || "";
 const TOKEN_HOURS = 4;            // how long a customer can re-open their token
 const QUEUE_KEEP = 24 * 3600e3;   // queue records are deleted after 24 hours
+const MAX_WAITING = 5;            // one customer (mobile number) can have at most this many requests waiting at once
 
 const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 const sign = (e) => crypto.createHmac("sha256", PW).update(String(e)).digest("hex");
@@ -18,6 +19,7 @@ const authed = (req) => {
 const clip = (v, n) => String(v || "").trim().slice(0, n);
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const digits = (v) => String(v || "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "");
 const rid = () => Array.from(crypto.randomBytes(16), (b) => AL[b % 32]).join("");
 
 export default async (req) => {
@@ -30,10 +32,17 @@ export default async (req) => {
   // ---- Customer side (opened from the QR code) ----
   if (path === "queue/join" && POST) {
     if (body.bot) return J({ ok: true }); // honeypot
-    const name = clip(body.name, 80);
-    const phone = clip(body.phone, 30).replace(/[^\d+\-() ]/g, "");
-    const email = clip(body.email, 120);
-    if (!name || phone.replace(/\D/g, "").length < 7 || !EMAIL.test(email)) return J({ error: "invalid" }, 400);
+    // Customer entries are stored in capital letters. Mobile must be 05XXXXXXXX (10 digits).
+    const name = clip(body.name, 80).toUpperCase();
+    const phone = digits(body.phone);
+    const email = clip(body.email, 120).toUpperCase();
+    if (!name) return J({ error: "invalid", field: "name" }, 400);
+    if (!/^05\d{8}$/.test(phone)) return J({ error: "invalid", field: "phone" }, 400);
+    if (!EMAIL.test(email)) return J({ error: "invalid", field: "email" }, 400);
+    // The same customer may take more than one token; only stop obvious spamming.
+    const { blobs } = await queue.list();
+    const all = (await Promise.all(blobs.map((b) => queue.get(b.key, { type: "json" })))).filter(Boolean);
+    if (all.filter((i) => i.phone === phone && i.status === "waiting").length >= MAX_WAITING) return J({ error: "toomany" }, 429);
     const id = rid(); // unguessable: it is the customer's only key to their token
     await queue.setJSON(id, {
       id, name, phone, email, language: body.language === "ar" ? "ar" : "en",
@@ -76,7 +85,7 @@ export default async (req) => {
     if (path === "reception/issue" && POST) {
       const it = await queue.get(String(body.id), { type: "json" });
       if (!it) return J({ error: "notfound" }, 404);
-      const token = clip(body.token, 20).toUpperCase();
+      const token = clip(body.token, 20).toUpperCase(); // always stored and shown in capitals
       if (!/^[A-Z0-9][A-Z0-9\- ]{0,19}$/.test(token)) return J({ error: "badtoken" }, 400);
       it.token = token; it.status = "issued"; it.issuedAt = new Date().toISOString();
       await queue.setJSON(it.id, it);

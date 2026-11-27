@@ -58,6 +58,17 @@ label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
 .dbody p{margin:0 0 6px}.dbody .mute{color:var(--mute)}
 .exit{margin-top:20px;min-width:200px}
 .rv h2{font-size:24px;margin:8px 0 6px}.rv .star{font-size:44px;line-height:1}
+textarea,input.caps{text-transform:uppercase}
+.in.caps::placeholder{text-transform:none}
+.hint{font-size:12px;color:var(--mute);margin:6px 0 0}
+.tk{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:12px;text-align:center}
+.tk.ok{border-color:var(--green)}
+.th{display:flex;justify-content:space-between;font-size:12px;color:var(--mute);margin-bottom:8px}.th b{color:var(--ink)}
+.tw{display:flex;gap:10px;align-items:center;justify-content:center;padding:10px;color:var(--mute);font-weight:600}
+.spin.s{width:20px;height:20px;border-width:3px;margin:0}
+.tk .tsmall{font-size:clamp(40px,14vw,72px)}
+.tk .send{margin-top:6px}
+.row2{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.row2>*{flex:1;min-width:150px}
 @media (prefers-reduced-motion:reduce){.dlg,.spin{animation:none}}
 @media(max-width:560px){header{grid-template-columns:60px 1fr 60px}header img{max-height:50px}.card{padding:20px}}
 </style>
@@ -71,38 +82,31 @@ label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
   </header>
   <div class="top"><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="ar" aria-pressed="false">العربية</button></div></div>
 
-  <!-- 1. Details form -->
+  <div class="notice" id="notice" role="status" hidden></div>
+
+  <!-- Your tokens (one customer can have several) -->
+  <section class="card" id="sTickets" hidden>
+    <h2 data-i="yourTokens"></h2>
+    <div id="tlist"></div>
+    <div class="row2">
+      <button class="send" type="button" id="another" data-i="another"></button>
+      <a class="send ghost" id="fbLink" href="#" data-i="fbBtn"></a>
+    </div>
+  </section>
+
+  <!-- Details form -->
   <main class="card" id="sForm">
-    <div class="notice" id="notice" role="status" hidden></div>
-    <h2 data-i="title"></h2><p class="sub" data-i="intro"></p>
+    <h2 data-i="title"></h2><p class="sub" id="intro"></p>
     <form id="f" novalidate>
       <p class="hp"><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
-      <div class="fld"><label class="l" for="name" data-i="name"></label><input class="in" id="name" name="name" maxlength="80" autocomplete="name" required></div>
-      <div class="fld"><label class="l" for="phone" data-i="phone"></label><input class="in" id="phone" name="phone" type="tel" inputmode="tel" maxlength="30" autocomplete="tel" dir="ltr" required></div>
-      <div class="fld"><label class="l" for="email" data-i="email"></label><input class="in" id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" required></div>
+      <div class="fld"><label class="l" for="name" data-i="name"></label><input class="in caps" id="name" name="name" maxlength="80" autocomplete="name" required></div>
+      <div class="fld"><label class="l" for="phone" data-i="phone"></label><input class="in" id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" dir="ltr" placeholder="05XXXXXXXX" required><p class="hint" data-i="phoneHint"></p></div>
+      <div class="fld"><label class="l" for="email" data-i="email"></label><input class="in caps" id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" required></div>
       <p class="msg" id="err" role="alert"></p>
-      <button class="send full" type="submit" id="btn" data-i="send"></button>
+      <div class="row2" style="margin-top:0"><button class="send" type="submit" id="btn" data-i="send"></button><button class="send ghost" type="button" id="cancelForm" data-i="back" hidden></button></div>
       <p class="priv" data-i="priv"></p>
     </form>
   </main>
-
-  <!-- 2. Waiting for reception -->
-  <section class="card center" id="sWait" hidden>
-    <div class="spin" aria-hidden="true"></div>
-    <h2 id="waitT"></h2><p class="sub" style="margin:0 auto" data-i="waitD"></p>
-    <p class="note" style="margin-top:14px" data-i="waitS"></p>
-  </section>
-
-  <!-- 3. Token ready (stays for 4 hours) -->
-  <section class="card center" id="sTicket" hidden>
-    <div class="lbl" data-i="ready"></div>
-    <div class="tsmall" id="tkSmall" dir="ltr"></div>
-    <p class="note" id="tUntil"></p>
-    <div class="btns">
-      <button class="send" type="button" id="showFull" data-i="showFull"></button>
-      <a class="send ghost" id="fbLink" href="https://truelink-review.netlify.app/customer" data-i="fbBtn"></a>
-    </div>
-  </section>
 </div>
 
 <!-- Big token pop-up -->
@@ -139,33 +143,44 @@ label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
 </div>
 
 <script>
-const REVIEW="https://truelink-review.netlify.app/customer",KEY="tlq",SEEN="tlq_seen";
+const REVIEW="https://truelink-review.netlify.app/customer",KEY="tlq2",SEEN="tlq2_seen",ME="tlq_me";
 const T={
-en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your details. Reception will send your token number to this screen.",name:"Full name",phone:"Mobile number",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",invalid:"Please check your name, mobile number and email address.",waitT:"Thank you, {n}",waitD:"Reception is preparing your token. Keep this page open. It will appear here automatically.",waitS:"Waiting for reception…",ready:"YOUR TOKEN IS READY",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"Your token has expired. If you need a new one, submit your details again.",gone:"We could not find your request. Please submit your details again."},
-ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل بياناتك وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",name:"الاسم الكامل",phone:"رقم الجوال",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",invalid:"يرجى التحقق من الاسم ورقم الجوال والبريد الإلكتروني.",waitT:"شكرًا لك {n}",waitD:"يقوم الاستقبال بتجهيز رقم دورك. أبقِ هذه الصفحة مفتوحة وسيظهر الرقم هنا تلقائيًا.",waitS:"بانتظار الاستقبال…",ready:"رقم دورك جاهز",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم الدور. إذا احتجت رقمًا جديدًا فأرسل بياناتك مرة أخرى.",gone:"لم نعثر على طلبك. يرجى إرسال بياناتك مرة أخرى."}};
+en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your details. Reception will send your token number to this screen.",introMore:"Need another token? Your details are filled in. Check them and press Request token.",name:"Full name",phone:"Mobile number",phoneHint:"Starts with 05, 10 digits (example 0501234567)",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",eName:"Please enter your name.",ePhone:"Mobile number must start with 05 and have 10 digits.",eEmail:"Please enter a valid email address.",tooMany:"You already have several requests waiting. Please wait for reception.",yourTokens:"Your tokens",another:"Get another token",back:"Back",reqN:"Request {n}",waitS:"Waiting for reception…",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"A token has expired and was removed from this page.",gone:"A request could not be found and was removed. Please submit your details again."},
+ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل بياناتك وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",introMore:"تحتاج رقم دور آخر؟ بياناتك معبأة مسبقًا. راجعها واضغط «اطلب رقم الدور».",name:"الاسم الكامل",phone:"رقم الجوال",phoneHint:"يبدأ بـ 05 ويتكون من 10 أرقام (مثال 0501234567)",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",eName:"يرجى إدخال الاسم.",ePhone:"يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام.",eEmail:"يرجى إدخال بريد إلكتروني صحيح.",tooMany:"لديك عدة طلبات قيد الانتظار. يرجى انتظار الاستقبال.",yourTokens:"أرقام دورك",another:"احصل على رقم دور آخر",back:"رجوع",reqN:"الطلب {n}",waitS:"بانتظار الاستقبال…",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم دور وتمت إزالته من هذه الصفحة.",gone:"تعذّر العثور على طلب وتمت إزالته. يرجى إرسال بياناتك مرة أخرى."}};
 const $=s=>document.querySelector(s),f=$("#f");
 const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
-const del=k=>{try{localStorage.removeItem(k)}catch(e){}};
-let lang="en",tk=null,info=null,off=0,timer=null,noticeKey="";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const dg=v=>String(v).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"");
+let lang="en",list=[],info={},off=0,timer=null,showForm=false,noticeKey="",noticeT=null,pending=[],cur=null;
 const L=k=>T[lang][k];
-const left=()=>Date.parse(info.visibleUntil)-(Date.now()+off);
+const left=d=>Date.parse(d.visibleUntil)-(Date.now()+off);
 const clock=iso=>new Date(iso).toLocaleTimeString(lang==="ar"?"ar-AE":"en-GB",{hour:"2-digit",minute:"2-digit"});
+const save=()=>set(KEY,JSON.stringify(list.slice(0,20)));
+const seen=()=>{try{return JSON.parse(get(SEEN)||"{}")}catch(e){return{}}};
+const mark=(id,m)=>{const s=seen();s[id]=m;set(SEEN,JSON.stringify(s))};
 
+/* one-line fit for token numbers */
+function fit(el,max){const w=el.clientWidth-28;if(w<=0)return;el.style.fontSize=Math.max(32,Math.min(max,w/(Math.max(el.textContent.length,1)*.7)))+"px"}
+function fitAll(){fit($("#mTok"),170);document.querySelectorAll(".tsmall").forEach(e=>fit(e,72))}
+addEventListener("resize",fitAll);
+
+function card(t,n){
+  const d=info[t.id],head=`<div class="th"><b>${esc(L("reqN").replace("{n}",n))}</b><span>${clock(t.at)}</span></div>`;
+  if(!d||d.status!=="issued")return `<div class="tk">${head}<div class="tw"><i class="spin s"></i><span>${esc(L("waitS"))}</span></div></div>`;
+  return `<div class="tk ok">${head}<div class="tsmall" dir="ltr">${esc(d.token)}</div><p class="note">${esc(L("until").replace("{t}",clock(d.visibleUntil)))}</p><button class="send" type="button" data-show="${t.id}">${esc(L("showFull"))}</button></div>`;
+}
 function paint(){
   document.querySelectorAll("[data-i]").forEach(e=>{const v=L(e.dataset.i);if(v)e.textContent=v});
-  const issued=tk&&info&&info.status==="issued",st=!tk?"form":issued?"ticket":"wait";
-  $("#sForm").hidden=st!=="form";$("#sWait").hidden=st!=="wait";$("#sTicket").hidden=st!=="ticket";
-  const nm=(info&&info.name)||(tk&&tk.name)||"";
-  $("#waitT").textContent=L("waitT").replace("{n}",nm);
+  const has=list.length>0;
+  $("#sTickets").hidden=!has;$("#sForm").hidden=has&&!showForm;
+  $("#another").hidden=showForm;$("#cancelForm").hidden=!has;
+  $("#intro").textContent=L(has?"introMore":"intro");
   $("#notice").hidden=!noticeKey;$("#notice").textContent=noticeKey?L(noticeKey):"";
-  if(issued){
-    const u=L("until").replace("{t}",clock(info.visibleUntil));
-    $("#tkSmall").textContent=info.token;$("#mTok").textContent=info.token;
-    $("#mHello").textContent=L("hello").replace("{n}",nm);
-    $("#tUntil").textContent=u;$("#mUntil").textContent=u;
-    fitAll();
-  }
+  const asc=[...list].sort((a,b)=>a.at.localeCompare(b.at)),num=Object.fromEntries(asc.map((t,i)=>[t.id,i+1]));
+  $("#tlist").innerHTML=[...list].sort((a,b)=>b.at.localeCompare(a.at)).map(t=>card(t,num[t.id])).join("");
+  if(cur&&!$("#mTk").hidden)fillModal();
+  fitAll();
 }
 function setLang(l){
   lang=l;document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
@@ -173,59 +188,79 @@ function setLang(l){
   set("lang",l);paint();
 }
 document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
+function notice(k){noticeKey=k;clearTimeout(noticeT);noticeT=setTimeout(()=>{noticeKey="";paint()},9000)}
 
-/* shrink long token numbers so they always stay on one line */
-function fit(el,max){const w=el.clientWidth-28;if(w<=0)return;el.style.fontSize=Math.max(32,Math.min(max,w/(Math.max(el.textContent.length,1)*.7)))+"px"}
-function fitAll(){fit($("#mTok"),170);fit($("#tkSmall"),84)}
-addEventListener("resize",fitAll);
 /* pop-ups */
-function openTok(auto){
-  paint();$("#mTk").hidden=false;document.body.classList.add("lock");fitAll();$("#mExit").focus();
+function fillModal(){
+  const d=info[cur];if(!d)return;
+  $("#mTok").textContent=d.token;$("#mHello").textContent=L("hello").replace("{n}",d.name||"");
+  $("#mUntil").textContent=L("until").replace("{t}",clock(d.visibleUntil));
+}
+function openTok(id,auto){
+  if(!info[id])return;cur=id;fillModal();
+  $("#mTk").hidden=false;document.body.classList.add("lock");fitAll();$("#mExit").focus();
   if(auto&&navigator.vibrate)try{navigator.vibrate([200,100,200])}catch(e){}
 }
-function exitTok(){$("#mTk").hidden=true;$("#mRv").hidden=false;$("#rvGo").focus()}
-function closeRv(){$("#mRv").hidden=true;document.body.classList.remove("lock")}
-$("#showFull").onclick=()=>openTok(false);
+function exitTok(){
+  $("#mTk").hidden=true;cur=null;
+  if(pending.length){openTok(pending.shift(),true);return}   // another token was issued meanwhile
+  $("#mRv").hidden=false;$("#rvGo").focus();
+}
+function closeRv(){$("#mRv").hidden=true;if($("#mTk").hidden)document.body.classList.remove("lock")}
 $("#mExit").onclick=exitTok;$("#rvLater").onclick=closeRv;
+$("#tlist").addEventListener("click",e=>{const b=e.target.closest("[data-show]");if(b)openTok(b.dataset.show,false)});
 addEventListener("keydown",e=>{if(e.key!=="Escape")return;if(!$("#mTk").hidden)exitTok();else if(!$("#mRv").hidden)closeRv()});
 
 /* state */
-function drop(reason){
-  clearTimeout(timer);del(KEY);tk=null;info=null;noticeKey=reason;
-  $("#mTk").hidden=true;$("#mRv").hidden=true;document.body.classList.remove("lock");paint();
+function remove(id,why){
+  list=list.filter(t=>t.id!==id);delete info[id];pending=pending.filter(x=>x!==id);save();notice(why);
+  if(cur===id){$("#mTk").hidden=true;cur=null;document.body.classList.remove("lock")}
+}
+function announce(id){
+  if(!$("#mTk").hidden||!$("#mRv").hidden){if(!pending.includes(id)&&cur!==id)pending.push(id);return}
+  openTok(id,true);
 }
 async function check(){
-  clearTimeout(timer);if(!tk)return;
-  try{
-    const r=await fetch("/api/queue/status?id="+encodeURIComponent(tk.id),{cache:"no-store"});
-    if(r.status===404)return drop("gone");
-    if(!r.ok)throw 0;
-    const d=await r.json();off=Date.parse(d.now)-Date.now();
-    const changed=d.status==="issued"&&(!info||info.token!==d.token||info.issuedAt!==d.issuedAt);
-    info=d;
-    if(d.status==="issued"&&left()<=0)return drop("expired");
-    paint();
-    const mark=tk.id+d.issuedAt+d.token;
-    if(changed&&d.status==="issued"&&get(SEEN)!==mark){set(SEEN,mark);openTok(true)}
-  }catch(e){}
-  timer=setTimeout(check,info&&info.status==="issued"?30000:4000);
+  clearTimeout(timer);if(!list.length)return;
+  const rs=await Promise.all(list.map(async t=>{
+    try{const r=await fetch("/api/queue/status?id="+encodeURIComponent(t.id),{cache:"no-store"});
+      if(r.status===404)return{id:t.id,gone:true};if(!r.ok)return null;return{id:t.id,d:await r.json()}}catch(e){return null}}));
+  rs.forEach(x=>{
+    if(!x)return;if(x.gone)return remove(x.id,"gone");
+    off=Date.parse(x.d.now)-Date.now();info[x.id]=x.d;
+    if(x.d.status!=="issued")return;
+    if(left(x.d)<=0)return remove(x.id,"expired");
+    const m=x.id+x.d.issuedAt+x.d.token;
+    if(seen()[x.id]!==m){mark(x.id,m);announce(x.id)}
+  });
+  paint();
+  timer=setTimeout(check,list.some(t=>!info[t.id]||info[t.id].status!=="issued")?4000:30000);
 }
-setInterval(()=>{if(info&&info.status==="issued"&&left()<=0)drop("expired")},15000);
-document.addEventListener("visibilitychange",()=>{if(!document.hidden&&tk)check()});
+setInterval(()=>{let ch=false;list.slice().forEach(t=>{const d=info[t.id];if(d&&d.status==="issued"&&left(d)<=0){remove(t.id,"expired");ch=true}});if(ch)paint()},15000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden&&list.length)check()});
 
-/* submit */
+/* form */
+function fillMe(){try{const m=JSON.parse(get(ME)||"null");if(m){f.name.value=m.name||"";f.phone.value=m.phone||"";f.email.value=m.email||""}}catch(e){}}
+$("#phone").addEventListener("input",e=>{e.target.value=dg(e.target.value).slice(0,10)});
+$("#another").onclick=()=>{showForm=true;fillMe();paint();$("#sForm").scrollIntoView({behavior:"smooth",block:"start"})};
+$("#cancelForm").onclick=()=>{showForm=false;$("#err").textContent="";paint();scrollTo({top:0,behavior:"smooth"})};
 f.addEventListener("submit",async e=>{
   e.preventDefault();
   const err=$("#err"),btn=$("#btn");err.textContent="";
-  const o=Object.fromEntries(new FormData(f));o.bot=o["bot-field"];o.language=lang;
-  if(!o.name.trim()||o.phone.replace(/\D/g,"").length<7||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email.trim())){err.textContent=L("invalid");return}
+  const o={name:f.name.value.trim().toUpperCase(),phone:dg(f.phone.value),email:f.email.value.trim().toUpperCase(),bot:f["bot-field"].value,language:lang};
+  if(!o.name){err.textContent=L("eName");return}
+  if(!/^05\d{8}$/.test(o.phone)){err.textContent=L("ePhone");return}
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){err.textContent=L("eEmail");return}
   btn.disabled=true;btn.textContent=L("sending");
   try{
     const r=await fetch("/api/queue/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)});
-    if(r.status===400){err.textContent=L("invalid");return}
+    if(r.status===400){const j=await r.json().catch(()=>({}));err.textContent=L(j.field==="phone"?"ePhone":j.field==="email"?"eEmail":"eName");return}
+    if(r.status===429){err.textContent=L("tooMany");return}
     if(!r.ok)throw 0;
     const {id}=await r.json();if(!id)throw 0;
-    tk={id,name:o.name.trim()};set(KEY,JSON.stringify(tk));info=null;noticeKey="";f.reset();paint();check();
+    list.unshift({id,name:o.name,at:new Date().toISOString()});save();
+    set(ME,JSON.stringify({name:o.name,phone:o.phone,email:o.email}));
+    showForm=false;noticeKey="";f.reset();paint();check();scrollTo({top:0,behavior:"smooth"});
   }catch(x){err.textContent=L("err")}
   finally{btn.disabled=false;btn.textContent=L("send")}
 });
@@ -233,8 +268,8 @@ f.addEventListener("submit",async e=>{
 /* start */
 $("#fbLink").href=REVIEW;$("#rvGo").href=REVIEW;
 try{const s=get("lang");lang=T[s]?s:"en"}catch(e){}
-try{tk=JSON.parse(get(KEY)||"null")}catch(e){tk=null}
-setLang(lang);if(tk)check();
+try{list=JSON.parse(get(KEY)||"[]");if(!Array.isArray(list))list=[]}catch(e){list=[]}
+fillMe();setLang(lang);if(list.length)check();
 </script>
 </body>
 </html>
