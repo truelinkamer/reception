@@ -6,7 +6,7 @@ import crypto from "node:crypto";
 const PW = process.env.RECEPTION_PASSWORD || "";
 const TOKEN_HOURS = 4;            // how long a customer can re-open their token
 const QUEUE_KEEP = 24 * 3600e3;   // queue records are deleted after 24 hours
-const CUSTOMER_KEEP = 365 * 24 * 3600e3; // saved customers (for auto-fill) are forgotten after 1 year without a visit
+// Saved customers (name + email per mobile number, used for auto-fill) are kept permanently. Only the daily queue is cleared.
 const MAX_WAITING = 5;            // one customer (mobile number) can have at most this many requests waiting at once
 
 const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -40,7 +40,6 @@ export default async (req) => {
     if (!/^05\d{8}$/.test(phone)) return J({ found: false });
     const c = await customers.get(phone, { type: "json" });
     if (!c) return J({ found: false });
-    if (Date.now() - new Date(c.updatedAt).getTime() > CUSTOMER_KEEP) { await customers.delete(phone); return J({ found: false }); }
     return J({ found: true, name: c.name, emailMasked: maskEmail(c.email) });
   }
 

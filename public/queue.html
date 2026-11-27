@@ -23,7 +23,9 @@ header h1{font-size:17px;margin:6px 0;line-height:1.3}
 .tag{font-size:11px;letter-spacing:.2em;color:var(--mute)}
 .bar{display:flex;gap:6px;justify-content:center;margin:8px 0}.bar i{width:32px;height:3px;background:#d4202c}.bar i:nth-child(2){background:#111}.bar i:nth-child(3){background:#0b8a4a}
 .note{font-size:12px;color:var(--mute)}
-.top{display:flex;justify-content:flex-end}
+.top{display:flex;justify-content:flex-end;gap:8px}
+.snd{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:5px 14px;font:inherit;font-size:12px;cursor:pointer}
+.snd[aria-pressed=false]{color:var(--mute)}
 .lang{display:flex;border:1px solid var(--line);border-radius:99px;overflow:hidden;background:var(--card)}
 .lang button{border:0;background:none;color:var(--ink);padding:5px 14px;font:inherit;font-size:12px;cursor:pointer}
 .lang button[aria-pressed=true]{background:var(--ink);color:var(--card);font-weight:600}
@@ -83,7 +85,7 @@ textarea,input.caps{text-transform:uppercase}
     <div><div class="tag" data-i="tag"></div><h1>True Link Government<br>Transaction Center LLC</h1><div class="bar"><i></i><i></i><i></i></div></div>
     <img src="logo-truelink.png" alt="True Link" onerror="this.style.visibility='hidden'">
   </header>
-  <div class="top"><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="ar" aria-pressed="false">العربية</button></div></div>
+  <div class="top"><button class="snd" id="sndBtn" type="button" aria-pressed="true"></button><div class="lang" role="group" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true">English</button><button type="button" data-lang="ar" aria-pressed="false">العربية</button></div></div>
 
   <div class="notice" id="notice" role="status" hidden></div>
 
@@ -148,8 +150,8 @@ textarea,input.caps{text-transform:uppercase}
 <script>
 const REVIEW="https://truelink-review.netlify.app/customer",KEY="tlq2",SEEN="tlq2_seen",ME="tlq_me";
 const T={
-en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your mobile number first. If you have visited before, your details fill in automatically. Reception will send your token number to this screen.",introMore:"Need another token? Check your details and press Request token.",lookupBusy:"Checking…",welcome:"Welcome back, {n}. Your details are filled in. Please check them.",emailSaved:"Saved email. Change it only if it is different now.",name:"Full name",phone:"Mobile number",phoneHint:"Starts with 05, 10 digits (example 0501234567)",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",eName:"Please enter your name.",ePhone:"Mobile number must start with 05 and have 10 digits.",eEmail:"Please enter a valid email address.",tooMany:"You already have several requests waiting. Please wait for reception.",yourTokens:"Your tokens",another:"Get another token",back:"Back",reqN:"Request {n}",waitS:"Waiting for reception…",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"A token has expired and was removed from this page.",gone:"A request could not be found and was removed. Please submit your details again."},
-ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل رقم جوالك أولًا. إذا زرتنا من قبل ستُعبّأ بياناتك تلقائيًا. وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",introMore:"تحتاج رقم دور آخر؟ راجع بياناتك واضغط «اطلب رقم الدور».",lookupBusy:"جارٍ التحقق…",welcome:"أهلًا بعودتك {n}. تم تعبئة بياناتك، يرجى مراجعتها.",emailSaved:"البريد المحفوظ. غيّره فقط إذا اختلف الآن.",name:"الاسم الكامل",phone:"رقم الجوال",phoneHint:"يبدأ بـ 05 ويتكون من 10 أرقام (مثال 0501234567)",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",eName:"يرجى إدخال الاسم.",ePhone:"يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام.",eEmail:"يرجى إدخال بريد إلكتروني صحيح.",tooMany:"لديك عدة طلبات قيد الانتظار. يرجى انتظار الاستقبال.",yourTokens:"أرقام دورك",another:"احصل على رقم دور آخر",back:"رجوع",reqN:"الطلب {n}",waitS:"بانتظار الاستقبال…",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم دور وتمت إزالته من هذه الصفحة.",gone:"تعذّر العثور على طلب وتمت إزالته. يرجى إرسال بياناتك مرة أخرى."}};
+en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your mobile number first. If you have visited before, your details fill in automatically. Reception will send your token number to this screen.",introMore:"Need another token? Check your details and press Request token.",lookupBusy:"Checking…",sndOn:"🔔 Sound: on",sndOff:"🔕 Sound: off",titleReady:"Your token is ready",welcome:"Welcome back, {n}. Your details are filled in. Please check them.",emailSaved:"Saved email. Change it only if it is different now.",name:"Full name",phone:"Mobile number",phoneHint:"Starts with 05, 10 digits (example 0501234567)",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",eName:"Please enter your name.",ePhone:"Mobile number must start with 05 and have 10 digits.",eEmail:"Please enter a valid email address.",tooMany:"You already have several requests waiting. Please wait for reception.",yourTokens:"Your tokens",another:"Get another token",back:"Back",reqN:"Request {n}",waitS:"Waiting for reception…",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"A token has expired and was removed from this page.",gone:"A request could not be found and was removed. Please submit your details again."},
+ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل رقم جوالك أولًا. إذا زرتنا من قبل ستُعبّأ بياناتك تلقائيًا. وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",introMore:"تحتاج رقم دور آخر؟ راجع بياناتك واضغط «اطلب رقم الدور».",lookupBusy:"جارٍ التحقق…",sndOn:"🔔 الصوت: يعمل",sndOff:"🔕 الصوت: متوقف",titleReady:"رقم دورك جاهز",welcome:"أهلًا بعودتك {n}. تم تعبئة بياناتك، يرجى مراجعتها.",emailSaved:"البريد المحفوظ. غيّره فقط إذا اختلف الآن.",name:"الاسم الكامل",phone:"رقم الجوال",phoneHint:"يبدأ بـ 05 ويتكون من 10 أرقام (مثال 0501234567)",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",eName:"يرجى إدخال الاسم.",ePhone:"يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام.",eEmail:"يرجى إدخال بريد إلكتروني صحيح.",tooMany:"لديك عدة طلبات قيد الانتظار. يرجى انتظار الاستقبال.",yourTokens:"أرقام دورك",another:"احصل على رقم دور آخر",back:"رجوع",reqN:"الطلب {n}",waitS:"بانتظار الاستقبال…",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم دور وتمت إزالته من هذه الصفحة.",gone:"تعذّر العثور على طلب وتمت إزالته. يرجى إرسال بياناتك مرة أخرى."}};
 const $=s=>document.querySelector(s),f=$("#f");
 const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
@@ -184,7 +186,7 @@ function paint(){
   $("#notice").hidden=!noticeKey;$("#notice").textContent=noticeKey?L(noticeKey):"";
   const asc=[...list].sort((a,b)=>a.at.localeCompare(b.at)),num=Object.fromEntries(asc.map((t,i)=>[t.id,i+1]));
   $("#tlist").innerHTML=[...list].sort((a,b)=>b.at.localeCompare(a.at)).map(t=>card(t,num[t.id])).join("");
-  paintForm();
+  paintForm();paintSnd();
   if(cur&&!$("#mTk").hidden)fillModal();
   fitAll();
 }
@@ -200,6 +202,25 @@ function setLang(l){
 document.querySelectorAll("[data-lang]").forEach(b=>b.onclick=()=>setLang(b.dataset.lang));
 function notice(k){noticeKey=k;clearTimeout(noticeT);noticeT=setTimeout(()=>{noticeKey="";paint()},9000)}
 
+/* token-arrived alert: pleasant 3-note chime + short vibration */
+let actx=null,snd=get("tlq_snd")!=="off";const baseTitle=document.title;
+function audio(){if(!actx){const A=window.AudioContext||window.webkitAudioContext;if(A)try{actx=new A()}catch(e){}}return actx}
+function unlock(){const c=audio();if(c&&c.state==="suspended")c.resume()}
+["pointerdown","touchstart","keydown"].forEach(ev=>addEventListener(ev,unlock,{passive:true})); // phones only allow sound after a tap
+function chime(){
+  if(!snd)return;const c=audio();if(!c)return;if(c.state==="suspended")c.resume();
+  const t=c.currentTime;
+  [[880,0],[1175,.22],[1568,.44]].forEach(([fr,d])=>{
+    const o=c.createOscillator(),g=c.createGain();o.type="sine";o.frequency.value=fr;o.connect(g);g.connect(c.destination);
+    g.gain.setValueAtTime(.0001,t+d);g.gain.exponentialRampToValueAtTime(.6,t+d+.02);g.gain.exponentialRampToValueAtTime(.0001,t+d+.5);
+    o.start(t+d);o.stop(t+d+.55);
+  });
+}
+function buzz(){try{if(navigator.vibrate)navigator.vibrate([150,80,150])}catch(e){}}
+function paintSnd(){const b=$("#sndBtn");b.textContent=L(snd?"sndOn":"sndOff");b.setAttribute("aria-pressed",snd)}
+$("#sndBtn").onclick=()=>{snd=!snd;set("tlq_snd",snd?"on":"off");paintSnd();if(snd)chime()};
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)document.title=baseTitle});
+
 /* pop-ups */
 function fillModal(){
   const d=info[cur];if(!d)return;
@@ -209,7 +230,7 @@ function fillModal(){
 function openTok(id,auto){
   if(!info[id])return;cur=id;fillModal();
   $("#mTk").hidden=false;document.body.classList.add("lock");fitAll();$("#mExit").focus();
-  if(auto&&navigator.vibrate)try{navigator.vibrate([200,100,200])}catch(e){}
+  if(auto){chime();buzz();if(document.hidden)document.title="🔔 "+L("titleReady")}
 }
 function exitTok(){
   $("#mTk").hidden=true;cur=null;
