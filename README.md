@@ -16,7 +16,9 @@ The token stays viewable on the page for 4 hours.
 
 - Mobile number must start with `05` and have exactly 10 digits (checked on the phone and again on the server).
 - Reception sees the mobile number without the leading 0 (0501234567 is shown and copied as 501234567). The full number is still stored, and tap-to-call still dials it.
-- Customer name and email are stored and shown in CAPITAL LETTERS. Token numbers typed by reception are always shown in capitals.
+- Customer name is stored and shown in CAPITAL LETTERS; email in small letters; token numbers typed by reception in capitals.
+- The form asks for the **mobile number first**. If that number has registered before, the name and email fill in automatically. The email is shown partly hidden (`a***@gmail.com`) so a stranger cannot read someone's email by typing their number; reception still receives the full email. Customers can type over any field to change it, and the change is remembered.
+- Returning customers are remembered for 1 year after their last visit (`CUSTOMER_KEEP` in `api.mjs`); the queue itself is still cleared after 24 hours.
 - One customer can take more than one token: after getting a token they press **Get another token** (details are prefilled). Reception sees each request separately and is told "Request 2 of 3" for the same mobile number. A mobile number can have at most 5 requests waiting at once (`MAX_WAITING` in `api.mjs`).
 - Reception hears a loud 4-burst alert when a new customer arrives (use **Test sound**; click once on the page after opening it, as browsers require).
 

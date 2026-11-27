@@ -6,6 +6,7 @@ import crypto from "node:crypto";
 const PW = process.env.RECEPTION_PASSWORD || "";
 const TOKEN_HOURS = 4;            // how long a customer can re-open their token
 const QUEUE_KEEP = 24 * 3600e3;   // queue records are deleted after 24 hours
+const CUSTOMER_KEEP = 365 * 24 * 3600e3; // saved customers (for auto-fill) are forgotten after 1 year without a visit
 const MAX_WAITING = 5;            // one customer (mobile number) can have at most this many requests waiting at once
 
 const J = (d, s = 200) => new Response(JSON.stringify(d), { status: s, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
@@ -20,6 +21,8 @@ const clip = (v, n) => String(v || "").trim().slice(0, n);
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const AL = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const digits = (v) => String(v || "").replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g, "");
+// a***@gmail.com : the public lookup never reveals a full email address
+const maskEmail = (e) => { const [l, d] = String(e).split("@"); return l && d ? l[0] + "***@" + d : ""; };
 const rid = () => Array.from(crypto.randomBytes(16), (b) => AL[b % 32]).join("");
 
 export default async (req) => {
@@ -28,16 +31,30 @@ export default async (req) => {
   const POST = req.method === "POST";
   const body = POST ? await req.json().catch(() => ({})) : {};
   const queue = getStore({ name: "queue", consistency: "strong" });
+  const customers = getStore({ name: "customers", consistency: "strong" }); // returning-customer directory, keyed by mobile number
 
   // ---- Customer side (opened from the QR code) ----
+  // Returning customer: mobile number -> saved name + masked email, so the form can fill itself in.
+  if (path === "queue/lookup") {
+    const phone = digits(url.searchParams.get("phone"));
+    if (!/^05\d{8}$/.test(phone)) return J({ found: false });
+    const c = await customers.get(phone, { type: "json" });
+    if (!c) return J({ found: false });
+    if (Date.now() - new Date(c.updatedAt).getTime() > CUSTOMER_KEEP) { await customers.delete(phone); return J({ found: false }); }
+    return J({ found: true, name: c.name, emailMasked: maskEmail(c.email) });
+  }
+
   if (path === "queue/join" && POST) {
     if (body.bot) return J({ ok: true }); // honeypot
     // Customer entries are stored in capital letters. Mobile must be 05XXXXXXXX (10 digits).
     const name = clip(body.name, 80).toUpperCase();
     const phone = digits(body.phone);
-    const email = clip(body.email, 120).toUpperCase();
     if (!name) return J({ error: "invalid", field: "name" }, 400);
     if (!/^05\d{8}$/.test(phone)) return J({ error: "invalid", field: "phone" }, 400);
+    // Email is stored in small letters. A returning customer who did not change the saved (masked) email sends useSaved.
+    const saved = await customers.get(phone, { type: "json" });
+    let email = clip(body.email, 120).toLowerCase();
+    if (body.useSaved && saved) email = saved.email;
     if (!EMAIL.test(email)) return J({ error: "invalid", field: "email" }, 400);
     // The same customer may take more than one token; only stop obvious spamming.
     const { blobs } = await queue.list();
@@ -48,6 +65,7 @@ export default async (req) => {
       id, name, phone, email, language: body.language === "ar" ? "ar" : "en",
       createdAt: new Date().toISOString(), status: "waiting", token: "", issuedAt: null,
     });
+    await customers.setJSON(phone, { phone, name, email, updatedAt: new Date().toISOString(), visits: ((saved && saved.visits) || 0) + 1 });
     return J({ id });
   }
 

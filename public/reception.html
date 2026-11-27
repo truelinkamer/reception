@@ -58,6 +58,7 @@ input{border:1px solid var(--line);border-radius:9px;background:var(--card);colo
 .chip{display:inline-flex;align-items:center;gap:7px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:4px 6px 4px 10px;font-size:13px}
 .chip svg{width:14px;height:14px;color:var(--mute);flex:none}
 .chip a{color:var(--ink);text-decoration:none;font-weight:600;text-transform:uppercase}.chip a:hover{text-decoration:underline}
+.chip a.em{text-transform:none}
 .chip button{border:0;background:var(--line);color:var(--ink);border-radius:5px;font:inherit;font-size:11px;font-weight:700;padding:2px 8px;cursor:pointer}
 .chip button:hover{background:var(--ink);color:var(--card)}
 .meta{display:flex;gap:8px 12px;flex-wrap:wrap;align-items:center;margin-top:9px;font-size:12px;color:var(--mute)}
@@ -184,7 +185,7 @@ function row(i,G){
       <div class="nm" dir="auto">${esc(i.name)} ${pill} ${rep}</div>
       <div class="chips">
         <span class="chip">${IC.ph}<a href="tel:${esc(i.phone)}" dir="ltr">${esc(shown(i.phone))}</a><button type="button" data-copy="${esc(shown(i.phone))}">Copy</button></span>
-        <span class="chip">${IC.ml}<a href="mailto:${esc(i.email)}" dir="ltr">${esc(i.email)}</a><button type="button" data-copy="${esc(i.email)}">Copy</button></span>
+        <span class="chip">${IC.ml}<a class="em" href="mailto:${esc(i.email.toLowerCase())}" dir="ltr">${esc(i.email.toLowerCase())}</a><button type="button" data-copy="${esc(i.email.toLowerCase())}">Copy</button></span>
         <span class="chip"><a>${esc(i.name)}</a><button type="button" data-copy="${esc(i.name)}">Copy name</button></span>
       </div>
       <div class="meta"><span style="display:inline-flex;gap:5px;align-items:center"><span style="width:14px;height:14px;display:inline-block">${IC.ck}</span>Arrived ${hm(i.createdAt)}${w?` · waiting <span class="ago" data-t="${i.createdAt}">${ago(i.createdAt)}</span>`:` · token sent ${hm(i.issuedAt)}`}</span>${oth.length?`<span class="oth">Other tokens today: ${oth.map(esc).join(", ")}</span>`:""}${i.language==="ar"?"<span>Arabic</span>":""}</div>

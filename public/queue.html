@@ -11,6 +11,7 @@
 :root{--bg:#f3f5f4;--card:#fff;--ink:#14231c;--mute:#5b6a62;--line:#dde3df;--green:#0b6b3a;--red:#b3202a;--okbg:#e2f0e6;--redbg:#fbe8e8}
 @media (prefers-color-scheme:dark){:root{--bg:#0f1512;--card:#17201b;--ink:#eef3f0;--mute:#9baba2;--line:#2a3730;--okbg:#17301f;--redbg:#3a1b1d}}
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 "Bricolage Grotesque",system-ui,sans-serif;padding:16px}
 html[dir=rtl] body{font-family:"IBM Plex Sans Arabic",system-ui,sans-serif}
 body.lock{overflow:hidden}
@@ -59,6 +60,8 @@ label.l{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
 .exit{margin-top:20px;min-width:200px}
 .rv h2{font-size:24px;margin:8px 0 6px}.rv .star{font-size:44px;line-height:1}
 textarea,input.caps{text-transform:uppercase}
+.in.low{text-transform:lowercase}.in.low::placeholder{text-transform:none}
+.welcome{font-size:13px;font-weight:600;color:var(--green);margin:8px 0 0;min-height:1.2em}
 .in.caps::placeholder{text-transform:none}
 .hint{font-size:12px;color:var(--mute);margin:6px 0 0}
 .tk{border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin-top:12px;text-align:center}
@@ -99,9 +102,9 @@ textarea,input.caps{text-transform:uppercase}
     <h2 data-i="title"></h2><p class="sub" id="intro"></p>
     <form id="f" novalidate>
       <p class="hp"><label>Leave empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+      <div class="fld"><label class="l" for="phone" data-i="phone"></label><input class="in" id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" dir="ltr" placeholder="05XXXXXXXX" required><p class="hint" data-i="phoneHint"></p><p class="welcome" id="welcome" role="status" aria-live="polite"></p></div>
       <div class="fld"><label class="l" for="name" data-i="name"></label><input class="in caps" id="name" name="name" maxlength="80" autocomplete="name" required></div>
-      <div class="fld"><label class="l" for="phone" data-i="phone"></label><input class="in" id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel" dir="ltr" placeholder="05XXXXXXXX" required><p class="hint" data-i="phoneHint"></p></div>
-      <div class="fld"><label class="l" for="email" data-i="email"></label><input class="in caps" id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" required></div>
+      <div class="fld"><label class="l" for="email" data-i="email"></label><input class="in low" id="email" name="email" type="email" maxlength="120" autocomplete="email" dir="ltr" required><p class="hint" id="emailHint"></p></div>
       <p class="msg" id="err" role="alert"></p>
       <div class="row2" style="margin-top:0"><button class="send" type="submit" id="btn" data-i="send"></button><button class="send ghost" type="button" id="cancelForm" data-i="back" hidden></button></div>
       <p class="priv" data-i="priv"></p>
@@ -145,14 +148,16 @@ textarea,input.caps{text-transform:uppercase}
 <script>
 const REVIEW="https://truelink-review.netlify.app/customer",KEY="tlq2",SEEN="tlq2_seen",ME="tlq_me";
 const T={
-en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your details. Reception will send your token number to this screen.",introMore:"Need another token? Your details are filled in. Check them and press Request token.",name:"Full name",phone:"Mobile number",phoneHint:"Starts with 05, 10 digits (example 0501234567)",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",eName:"Please enter your name.",ePhone:"Mobile number must start with 05 and have 10 digits.",eEmail:"Please enter a valid email address.",tooMany:"You already have several requests waiting. Please wait for reception.",yourTokens:"Your tokens",another:"Get another token",back:"Back",reqN:"Request {n}",waitS:"Waiting for reception…",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"A token has expired and was removed from this page.",gone:"A request could not be found and was removed. Please submit your details again."},
-ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل بياناتك وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",introMore:"تحتاج رقم دور آخر؟ بياناتك معبأة مسبقًا. راجعها واضغط «اطلب رقم الدور».",name:"الاسم الكامل",phone:"رقم الجوال",phoneHint:"يبدأ بـ 05 ويتكون من 10 أرقام (مثال 0501234567)",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",eName:"يرجى إدخال الاسم.",ePhone:"يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام.",eEmail:"يرجى إدخال بريد إلكتروني صحيح.",tooMany:"لديك عدة طلبات قيد الانتظار. يرجى انتظار الاستقبال.",yourTokens:"أرقام دورك",another:"احصل على رقم دور آخر",back:"رجوع",reqN:"الطلب {n}",waitS:"بانتظار الاستقبال…",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم دور وتمت إزالته من هذه الصفحة.",gone:"تعذّر العثور على طلب وتمت إزالته. يرجى إرسال بياناتك مرة أخرى."}};
+en:{tag:"TOKEN REQUEST",title:"Get your token",intro:"Enter your mobile number first. If you have visited before, your details fill in automatically. Reception will send your token number to this screen.",introMore:"Need another token? Check your details and press Request token.",lookupBusy:"Checking…",welcome:"Welcome back, {n}. Your details are filled in. Please check them.",emailSaved:"Saved email. Change it only if it is different now.",name:"Full name",phone:"Mobile number",phoneHint:"Starts with 05, 10 digits (example 0501234567)",email:"Email address",send:"Request token",sending:"Sending…",priv:"Your details are used only to issue your token.",err:"Could not send. Check your connection and try again.",eName:"Please enter your name.",ePhone:"Mobile number must start with 05 and have 10 digits.",eEmail:"Please enter a valid email address.",tooMany:"You already have several requests waiting. Please wait for reception.",yourTokens:"Your tokens",another:"Get another token",back:"Back",reqN:"Request {n}",waitS:"Waiting for reception…",showFull:"Show token full screen",fbBtn:"Share your feedback",yourToken:"YOUR TOKEN NUMBER",hello:"Hello {n}",pleaseWait:"Please take a seat. We will call your number shortly.",until:"You can reopen this token on this page until {t}.",exit:"Exit",revT:"Thank you for visiting us",revD:"We would love to hear about your experience today. It only takes a minute.",revBtn:"Write a review",later:"Not now",expired:"A token has expired and was removed from this page.",gone:"A request could not be found and was removed. Please submit your details again."},
+ar:{tag:"طلب رقم دور",title:"احصل على رقم الدور",intro:"أدخل رقم جوالك أولًا. إذا زرتنا من قبل ستُعبّأ بياناتك تلقائيًا. وسيرسل الاستقبال رقم الدور إلى هذه الشاشة.",introMore:"تحتاج رقم دور آخر؟ راجع بياناتك واضغط «اطلب رقم الدور».",lookupBusy:"جارٍ التحقق…",welcome:"أهلًا بعودتك {n}. تم تعبئة بياناتك، يرجى مراجعتها.",emailSaved:"البريد المحفوظ. غيّره فقط إذا اختلف الآن.",name:"الاسم الكامل",phone:"رقم الجوال",phoneHint:"يبدأ بـ 05 ويتكون من 10 أرقام (مثال 0501234567)",email:"البريد الإلكتروني",send:"اطلب رقم الدور",sending:"جارٍ الإرسال…",priv:"تُستخدم بياناتك فقط لإصدار رقم الدور.",err:"تعذّر الإرسال. تحقق من الاتصال وحاول مرة أخرى.",eName:"يرجى إدخال الاسم.",ePhone:"يجب أن يبدأ رقم الجوال بـ 05 ويتكون من 10 أرقام.",eEmail:"يرجى إدخال بريد إلكتروني صحيح.",tooMany:"لديك عدة طلبات قيد الانتظار. يرجى انتظار الاستقبال.",yourTokens:"أرقام دورك",another:"احصل على رقم دور آخر",back:"رجوع",reqN:"الطلب {n}",waitS:"بانتظار الاستقبال…",showFull:"عرض الرقم بملء الشاشة",fbBtn:"شاركنا رأيك",yourToken:"رقم دورك",hello:"مرحبًا {n}",pleaseWait:"يرجى الجلوس، وسننادي على رقمك قريبًا.",until:"يمكنك إعادة فتح الرقم في هذه الصفحة حتى {t}.",exit:"خروج",revT:"شكرًا لزيارتك",revD:"يسعدنا أن نسمع عن تجربتك اليوم. يستغرق الأمر دقيقة فقط.",revBtn:"اكتب تقييمك",later:"ليس الآن",expired:"انتهت صلاحية رقم دور وتمت إزالته من هذه الصفحة.",gone:"تعذّر العثور على طلب وتمت إزالته. يرجى إرسال بياناتك مرة أخرى."}};
 const $=s=>document.querySelector(s),f=$("#f");
 const get=k=>{try{return localStorage.getItem(k)}catch(e){return null}};
 const set=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const dg=v=>String(v).replace(/[٠-٩]/g,d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d)).replace(/\D/g,"");
 let lang="en",list=[],info={},off=0,timer=null,showForm=false,noticeKey="",noticeT=null,pending=[],cur=null;
+let savedMask="",filledFor="",lookupFor="",autoFilled=false,wState="",wName="";
+const maskEmail=e=>{const[l,d]=String(e).split("@");return l&&d?l[0]+"***@"+d:""};
 const L=k=>T[lang][k];
 const left=d=>Date.parse(d.visibleUntil)-(Date.now()+off);
 const clock=iso=>new Date(iso).toLocaleTimeString(lang==="ar"?"ar-AE":"en-GB",{hour:"2-digit",minute:"2-digit"});
@@ -179,8 +184,13 @@ function paint(){
   $("#notice").hidden=!noticeKey;$("#notice").textContent=noticeKey?L(noticeKey):"";
   const asc=[...list].sort((a,b)=>a.at.localeCompare(b.at)),num=Object.fromEntries(asc.map((t,i)=>[t.id,i+1]));
   $("#tlist").innerHTML=[...list].sort((a,b)=>b.at.localeCompare(a.at)).map(t=>card(t,num[t.id])).join("");
+  paintForm();
   if(cur&&!$("#mTk").hidden)fillModal();
   fitAll();
+}
+function paintForm(){
+  $("#welcome").textContent=wState==="busy"?L("lookupBusy"):wState==="found"?L("welcome").replace("{n}",wName):"";
+  $("#emailHint").textContent=savedMask&&f.email.value.trim().toLowerCase()===savedMask?L("emailSaved"):"";
 }
 function setLang(l){
   lang=l;document.documentElement.lang=l;document.documentElement.dir=l==="ar"?"rtl":"ltr";
@@ -240,17 +250,46 @@ setInterval(()=>{let ch=false;list.slice().forEach(t=>{const d=info[t.id];if(d&&
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&list.length)check()});
 
 /* form */
-function fillMe(){try{const m=JSON.parse(get(ME)||"null");if(m){f.name.value=m.name||"";f.phone.value=m.phone||"";f.email.value=m.email||""}}catch(e){}}
-$("#phone").addEventListener("input",e=>{e.target.value=dg(e.target.value).slice(0,10)});
+function setW(st,n){wState=st;wName=n||"";paintForm()}
+async function doLookup(){
+  const ph=dg(f.phone.value);
+  if(!/^05\d{8}$/.test(ph)){lookupFor="";return}
+  if(lookupFor===ph)return;
+  lookupFor=ph;setW("busy");
+  try{
+    const r=await fetch("/api/queue/lookup?phone="+ph,{cache:"no-store"});
+    const d=await r.json();
+    if(dg(f.phone.value)!==ph)return;                 // number was edited while waiting
+    if(!d.found){setW("");return}
+    if(!f.name.value.trim()||autoFilled)f.name.value=d.name;
+    const cur=f.email.value.trim().toLowerCase();
+    if(cur&&maskEmail(cur)===d.emailMasked)savedMask="";   // customer's own device already has the full email
+    else{f.email.value=d.emailMasked;savedMask=d.emailMasked}
+    autoFilled=true;filledFor=ph;setW("found",d.name);
+  }catch(e){lookupFor="";setW("")}
+}
+function fillMe(){
+  try{const m=JSON.parse(get(ME)||"null");if(m){f.phone.value=m.phone||"";f.name.value=m.name||"";f.email.value=(m.email||"").toLowerCase();autoFilled=false;savedMask="";lookupFor="";doLookup()}}catch(e){}
+}
+function clearAuto(){f.name.value="";f.email.value="";autoFilled=false;savedMask="";filledFor="";setW("")}
+$("#phone").addEventListener("input",e=>{
+  e.target.value=dg(e.target.value).slice(0,10);
+  if(autoFilled&&e.target.value!==filledFor)clearAuto();   // different number: drop the other customer's details
+  if(e.target.value!==lookupFor&&wState!=="busy")setW("");
+  paintForm();doLookup();
+});
+f.email.addEventListener("input",paintForm);
+f.email.addEventListener("focus",()=>{if(savedMask&&f.email.value===savedMask)f.email.select()});
 $("#another").onclick=()=>{showForm=true;fillMe();paint();$("#sForm").scrollIntoView({behavior:"smooth",block:"start"})};
 $("#cancelForm").onclick=()=>{showForm=false;$("#err").textContent="";paint();scrollTo({top:0,behavior:"smooth"})};
 f.addEventListener("submit",async e=>{
   e.preventDefault();
   const err=$("#err"),btn=$("#btn");err.textContent="";
-  const o={name:f.name.value.trim().toUpperCase(),phone:dg(f.phone.value),email:f.email.value.trim().toUpperCase(),bot:f["bot-field"].value,language:lang};
-  if(!o.name){err.textContent=L("eName");return}
+  const emailVal=f.email.value.trim().toLowerCase(),useSaved=!!savedMask&&emailVal===savedMask;
+  const o={name:f.name.value.trim().toUpperCase(),phone:dg(f.phone.value),email:useSaved?"":emailVal,useSaved,bot:f["bot-field"].value,language:lang};
   if(!/^05\d{8}$/.test(o.phone)){err.textContent=L("ePhone");return}
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){err.textContent=L("eEmail");return}
+  if(!o.name){err.textContent=L("eName");return}
+  if(!useSaved&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email)){err.textContent=L("eEmail");return}
   btn.disabled=true;btn.textContent=L("sending");
   try{
     const r=await fetch("/api/queue/join",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(o)});
@@ -259,8 +298,9 @@ f.addEventListener("submit",async e=>{
     if(!r.ok)throw 0;
     const {id}=await r.json();if(!id)throw 0;
     list.unshift({id,name:o.name,at:new Date().toISOString()});save();
-    set(ME,JSON.stringify({name:o.name,phone:o.phone,email:o.email}));
-    showForm=false;noticeKey="";f.reset();paint();check();scrollTo({top:0,behavior:"smooth"});
+    let prev={};try{prev=JSON.parse(get(ME)||"{}")}catch(x){}
+    set(ME,JSON.stringify({name:o.name,phone:o.phone,email:useSaved?(prev.phone===o.phone?prev.email||"":""):o.email}));
+    showForm=false;noticeKey="";f.reset();savedMask="";autoFilled=false;lookupFor="";filledFor="";setW("");paint();check();scrollTo({top:0,behavior:"smooth"});
   }catch(x){err.textContent=L("err")}
   finally{btn.disabled=false;btn.textContent=L("send")}
 });
